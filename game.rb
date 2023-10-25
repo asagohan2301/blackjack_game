@@ -1,6 +1,5 @@
-require 'debug'
-# binding.break
-
+# Game クラスの役割：
+# ゲームの司会進行 (参加者への指示、勝敗の判定、ゲームオーバーの判定)
 class Game
   def initialize(player, dealer, card)
     @player = player
@@ -13,43 +12,50 @@ class Game
   def blackjack_game
     start
     continue
-    show_result unless @is_game_over
-    p @card.all_cards # 検証用
+    return if @is_game_over
+
+    fight
+    show_result
+    # 検証用
+    puts @card.all_cards
   end
 
   private
 
   def start
     puts 'ブラックジャックを開始します。'
-    # プレイヤーがカードを引く
     @player.draw_card(@card)
     @player.draw_card(@card)
-    # ディーラーがカードを引く
     @dealer.draw_card(@card)
     @dealer.draw_card(@card)
   end
 
   def continue
+    @player.show_current_sum
     response = @player.confirm_continue
+    return if response == false
 
-    if response == true
-      loop do
-        @player.draw_card(@card)
-        # maximum を超えたら即プログラム終了
-        if @player.current_sum > @player.maximum
-          @is_game_over = @player.game_over
-          return
-        end
-        # maximum を超えていなければ、再度プレイヤーにカードを引くかどうか確認
-        response = @player.confirm_continue
-        # プレイヤーが N を入力したらこのループを抜ける
-        break if response == false
+    loop do
+      @player.draw_card(@card)
+      # border を超えたら即プログラム終了
+      if @player.current_sum > @player.border
+        puts "カードの合計値が#{@player.border}を超えました。あなたの負けです。"
+        puts 'ブラックジャックを終了します。'
+        @is_game_over = true
+        return
       end
+      # border を超えていなければ、再度プレイヤーにカードを引くかどうか確認
+      @player.show_current_sum
+      response = @player.confirm_continue
+      # プレイヤーが N を入力したらこのループを抜ける
+      break if response == false
     end
+  end
 
+  def fight
     @dealer.show_second_card
     @dealer.show_current_sum
-    @dealer.draw_card(@card) while @dealer.current_sum < @dealer.minimum
+    @dealer.draw_card(@card) while @dealer.current_sum < @dealer.border
     @player.show_total
     @dealer.show_total
   end

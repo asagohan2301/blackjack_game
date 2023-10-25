@@ -1,28 +1,43 @@
-class Player
-  attr_accessor :current_sum, :maximum
+# Participant クラスの役割：
+# Game クラスからの指示で実際に動作を行う。現在の得点を持つ。プレイヤーとディーラーそれぞれに割り振れる役割はこちらに任せる。
+class Participant
+  attr_reader :current_sum, :border
 
-  def initialize
+  def initialize(name, border)
+    @border = border
+    @name = name
     @current_sum = 0
-    @maximum = 21
   end
 
   def draw_card(card)
-    suit = card.select_suit
-    number = card.all_cards[suit].delete_at(rand(card.all_cards[suit].length))
-    number = 10 if %w[J Q K].include?(number)
-    puts "あなたの引いたカードは#{card.suit_to_j(suit)}の#{number}です。"
-    @current_sum += number
+    card.shuffle # カードのインスタンス変数に値が入る
+    draw_card_message(card.value, card.suit_ja)
+    @current_sum += card.number
   end
 
-  def game_over
-    puts "カードの合計値が#{@maximum}を超えました。あなたの負けです。"
-    puts 'ブラックジャックを終了します。'
-    # 追加
-    true
+  def draw_card_message(value, suit_ja)
+  end
+
+  def show_current_sum
+    puts "#{@name}の現在の得点は#{@current_sum}です。"
+  end
+
+  def show_total
+    puts "#{@name}の最終の得点は#{@current_sum}です。"
+  end
+end
+
+class Player < Participant
+  def initialize
+    super('あなた', 21)
+  end
+
+  def draw_card_message(value, suit_ja)
+    puts "#{@name}の引いたカードは#{suit_ja}の#{value}です。"
   end
 
   def confirm_continue
-    puts "あなたの現在の得点は#{@current_sum}です。カードを引きますか？（Y/N）"
+    puts 'カードを引きますか？（Y/N）'
     y_or_n = gets.chomp
     if y_or_n.chomp == 'Y'
       true
@@ -30,48 +45,28 @@ class Player
       false
     end
   end
-
-  def show_total
-    puts "あなたの得点は#{@current_sum}です。"
-  end
 end
 
-class Dealer
-  attr_accessor :current_sum, :minimum
-
+class Dealer < Participant
   def initialize
-    @current_sum = 0
-    @minimum = 17
+    super('ディーラー', 17)
     @second_card_suit
-    @second_card_number
+    @second_card_value
     @draw_card_count = 0
   end
 
-  def draw_card(card)
+  def draw_card_message(value, suit_ja)
     @draw_card_count += 1
-    suit = card.select_suit
-    number = card.all_cards[suit].delete_at(rand(card.all_cards[suit].length))
-    number = 10 if %w[J Q K].include?(number)
     if @draw_card_count == 2
-      puts 'ディーラーの引いた2枚目のカードはわかりません。'
-      @second_card_suit = card.suit_to_j(suit)
-      @second_card_number = number
+      puts "#{@name}の引いた2枚目のカードはわかりません。"
+      @second_card_suit = suit_ja
+      @second_card_value = value
     else
-      puts "ディーラーの引いたカードは#{card.suit_to_j(suit)}の#{number}です。"
+      puts "#{@name}の引いたカードは#{suit_ja}の#{value}です。"
     end
-    # 合計値を足す
-    @current_sum += number
   end
 
   def show_second_card
-    puts "ディーラーの引いた2枚目のカードは#{@second_card_suit}の#{@second_card_number}でした。"
-  end
-
-  def show_current_sum
-    puts "ディーラーの現在の得点は#{@current_sum}です。"
-  end
-
-  def show_total
-    puts "ディーラーの得点は#{@current_sum}です。"
+    puts "#{@name}の引いた2枚目のカードは#{@second_card_suit}の#{@second_card_value}でした。"
   end
 end
