@@ -5,16 +5,16 @@ class Card
 
   def initialize
     @all_cards = {
-      spade: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K'],
-      heart: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K'],
-      diamond: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K'],
-      club: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K']
+      spade: ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K'],
+      heart: ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K'],
+      diamond: ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K'],
+      club: ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K']
     }
     # その時に参加者が引いたカード1枚の情報が入る
-    @suit
-    @suit_ja
-    @value
-    @number
+    @suit = ''
+    @suit_ja = ''
+    @value = nil
+    @number = 0
   end
 
   def shuffle
@@ -47,6 +47,12 @@ class Card
   end
 
   def set_number
-    @number = %w[J Q K].include?(@value) ? 10 : @value
+    @number = if %w[J Q K].include?(@value)
+                10
+              elsif @value == 'A'
+                11
+              else
+                @value
+              end
   end
 end
