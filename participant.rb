@@ -1,37 +1,34 @@
 # Participant クラスの役割：
-# Game クラスからの指示で実際に動作を行う。現在の得点を持つ。プレイヤーとディーラーそれぞれに割り振れる役割はこちらに任せる。
+# Game クラスからの指示で実際に動作を行う。現在の得点を持つ。現在の手持ちのカードの配列を持つ。プレイヤーとディーラーそれぞれに割り振れる役割はこちらに任せる。
 class Participant
-  attr_reader :current_sum, :border
+  attr_reader :name, :minimum, :hand
 
-  def initialize(name, border)
-    @border = border
+  TARGET_NUMBER = 21
+
+  def initialize(name)
     @name = name
-    @current_sum = 0
+    @hand = []
   end
 
   def draw_card(card)
     card.shuffle # カードのインスタンス変数に値が入る
     draw_card_message(card.value, card.suit_ja)
-    @current_sum += card.number
+    @hand.push(card.number)
   end
 
   def draw_card_message(value, suit_ja)
   end
 
   def show_current_sum
-    puts "#{@name}の現在の得点は#{@current_sum}です。"
+    puts "#{@name}の現在の得点は#{@hand.sum}です。"
   end
 
   def show_total
-    puts "#{@name}の最終の得点は#{@current_sum}です。"
+    puts "#{@name}の最終の得点は#{@hand.sum}です。"
   end
 end
 
 class Player < Participant
-  def initialize
-    super('あなた', 21)
-  end
-
   def draw_card_message(value, suit_ja)
     puts "#{@name}の引いたカードは#{suit_ja}の#{value}です。"
   end
@@ -48,11 +45,12 @@ class Player < Participant
 end
 
 class Dealer < Participant
-  def initialize
-    super('ディーラー', 17)
-    @second_card_suit
-    @second_card_value
+  def initialize(name)
+    super(name)
+    @second_card_suit = ''
+    @second_card_value = ''
     @draw_card_count = 0
+    @minimum = 17
   end
 
   def draw_card_message(value, suit_ja)
