@@ -37,14 +37,14 @@ class Game
 
     loop do
       @player.draw_card(@card)
-      # border を超えたら即プログラム終了
-      if @player.current_sum > @player.border
-        puts "カードの合計値が#{@player.border}を超えました。あなたの負けです。"
+      # TARGET_NUMBER を超えたら即プログラム終了
+      if @player.current_sum > Participant::TARGET_NUMBER
+        puts "カードの合計値が#{Participant::TARGET_NUMBER}を超えました。あなたの負けです。"
         puts 'ブラックジャックを終了します。'
         @is_game_over = true
         return
       end
-      # border を超えていなければ、再度プレイヤーにカードを引くかどうか確認
+      # TARGET_NUMBER を超えていなければ、再度プレイヤーにカードを引くかどうか確認
       @player.show_current_sum
       response = @player.confirm_continue
       # プレイヤーが N を入力したらこのループを抜ける
@@ -55,7 +55,7 @@ class Game
   def fight
     @dealer.show_second_card
     @dealer.show_current_sum
-    @dealer.draw_card(@card) while @dealer.current_sum < @dealer.border
+    @dealer.draw_card(@card) while @dealer.current_sum < @dealer.minimum
     @player.show_total
     @dealer.show_total
   end

@@ -1,10 +1,13 @@
 # Participant クラスの役割：
 # Game クラスからの指示で実際に動作を行う。現在の得点を持つ。プレイヤーとディーラーそれぞれに割り振れる役割はこちらに任せる。
 class Participant
-  attr_reader :current_sum, :border
+  attr_reader :current_sum, :border, :minimum
 
-  def initialize(name, border)
-    @border = border
+  # 追加
+  TARGET_NUMBER = 21
+
+  def initialize(name)
+    # @border = border
     @name = name
     @current_sum = 0
   end
@@ -29,7 +32,7 @@ end
 
 class Player < Participant
   def initialize
-    super('あなた', 21)
+    super('あなた')
   end
 
   def draw_card_message(value, suit_ja)
@@ -49,10 +52,11 @@ end
 
 class Dealer < Participant
   def initialize
-    super('ディーラー', 17)
+    super('ディーラー')
     @second_card_suit
     @second_card_value
     @draw_card_count = 0
+    @minimum = 17
   end
 
   def draw_card_message(value, suit_ja)
