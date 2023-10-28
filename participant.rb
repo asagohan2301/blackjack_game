@@ -3,10 +3,13 @@
 class Participant
   TARGET_NUMBER = 21
   attr_reader :name, :minimum, :hand
+  attr_accessor :is_bust, :is_stand
 
   def initialize(name)
     @name = name
     @hand = []
+    @is_bust = false
+    @is_stand = false
   end
 
   def draw_card(card)

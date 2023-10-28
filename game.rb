@@ -1,39 +1,26 @@
 # Game クラスの役割：
 # ゲームの司会進行 (参加者への指示、勝敗の判定、ゲームオーバーの判定)
 class Game
-  def initialize(player, computer_player1, dealer, card)
+  def initialize(player, computer_player1, computer_player2, dealer, card)
     @player = player
     @computer_player1 = computer_player1
+    @computer_player2 = computer_player2
     @dealer = dealer
     @card = card
-    @player_is_game_over = false
-    @computer_player1_is_game_over = false
-    @dealer_is_game_over = false
-    @player_stand = false
-    @computer_player1_stand = false
   end
 
   def blackjack_game
     start
-
     puts '--------'
-
     player_continue
-    return if @player_is_game_over
+    return if @player.is_bust
 
     dealer_continue
-    return if @dealer_is_game_over
+    return if @dealer.is_bust
 
     puts '--------'
-
     fight
     show_result
-
-    # 検証用
-    p @card.show_deck
-    p @player.hand
-    p @computer_player1.hand
-    p @dealer.hand
   end
 
   private
@@ -44,6 +31,8 @@ class Game
     @player.draw_card(@card)
     @computer_player1.draw_card(@card)
     @computer_player1.draw_card(@card)
+    @computer_player2.draw_card(@card)
+    @computer_player2.draw_card(@card)
     @dealer.draw_card(@card)
     @dealer.draw_card(@card)
   end
@@ -52,12 +41,13 @@ class Game
     loop do
       @player.show_current_sum
       human_player_continue
+      # プレイヤーがバストしたら、プレイヤーの負けでゲーム終了
+      return if @player.is_bust
+      # プレイヤーがNならコンピュータはそれ以上引かずに、ディーラーとの勝負へ
+      return if @player.is_stand == true
 
-      return if @player_is_game_over # プレイヤーがバストしたら、プレイヤーの負けでゲーム終了
-
-      return if @player_stand == true # プレイヤーがNならコンピュータはそれ以上引かずに、ディーラーとの勝負へ
-
-      computer_player_continue if !@computer_player1_is_game_over && !@computer_player1_stand
+      computer_player_continue(@computer_player1) if !@computer_player1.is_bust && !@computer_player1.is_stand
+      computer_player_continue(@computer_player2) if !@computer_player2.is_bust && !@computer_player2.is_stand
       puts '--------'
     end
   end
@@ -68,7 +58,7 @@ class Game
     if response == false
       puts "#{@player.name}はスタンドを宣言しました。ディーラーと勝負します。"
       puts '--------'
-      @player_stand = true
+      @player.is_stand = true
       return
     end
 
@@ -78,24 +68,24 @@ class Game
     return unless @player.hand.sum > Participant::TARGET_NUMBER
 
     # 手札に A がある場合の判定
-    @player_is_game_over = @player.judge_a
+    @player.is_bust = @player.judge_a
   end
 
-  def computer_player_continue
+  def computer_player_continue(computer_player)
     # コンピュータは、合計値が 17 を超えたらスタンドを宣言する
-    if @computer_player1.hand.sum > 17
-      puts "#{@computer_player1.name}はスタンドを宣言しました。"
-      @computer_player1_stand = true
+    if computer_player.hand.sum > 17
+      puts "#{computer_player.name}はスタンドを宣言しました。"
+      computer_player.is_stand = true
       return
     end
 
-    @computer_player1.draw_card(@card)
+    computer_player.draw_card(@card)
 
-    # TARGET_NUMBER を超えた場合
-    return unless @computer_player1.hand.sum > Participant::TARGET_NUMBER
+    # TARGET_NUMBER を超えていなければここで return
+    return unless computer_player.hand.sum > Participant::TARGET_NUMBER
 
     # 手札に A がある場合の判定
-    @computer_player1_is_game_over = @computer_player1.judge_a
+    computer_player.is_bust = computer_player.judge_a
   end
 
   def dealer_continue
@@ -113,7 +103,7 @@ class Game
     while @dealer.hand.sum < @dealer.minimum
       @dealer.draw_card(@card)
       # TARGET_NUMBER を超えたら即プログラム終了
-      @dealer_is_game_over = @dealer.judge_a if @dealer.hand.sum > Participant::TARGET_NUMBER
+      @dealer.is_bust = @dealer.judge_a if @dealer.hand.sum > Participant::TARGET_NUMBER
     end
   end
 

@@ -24,11 +24,6 @@ class Card
     @number = set_number
   end
 
-  # 検証用
-  def show_deck
-    p @deck
-  end
-
   private
 
   def set_suit
