@@ -42,13 +42,6 @@ class Player < Participant
       false
     end
   end
-
-  def computer_confirm
-    # 自動で、21に近づくようにカードを追加するか追加しないかを判断する
-    # 判断基準は？
-    # 21ぴったりならもうひかない
-    # 手札に A がある場合
-  end
 end
 
 class ComputerPlayer < Participant
