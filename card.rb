@@ -1,3 +1,4 @@
+# Card クラス：残りのカードを管理 / 参加者にカードを渡す
 class Card
   attr_reader :suit, :value, :number, :suit_ja
 

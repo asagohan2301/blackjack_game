@@ -1,3 +1,4 @@
+# Game クラス：ゲームの流れを作る / 条件分岐
 class Game
   def initialize(player, computer_player1, computer_player2, dealer, card)
     @player = player
@@ -50,10 +51,17 @@ class Game
   end
 
   def human_player_continue
+    # 得点が TARGET_NUMBER なら確認せずに進む
+    if @player.hand.sum == Participant::TARGET_NUMBER
+      puts '最強の得点です。ディーラーとの勝負に進みます。'
+      @player.is_stand = true
+      return
+    end
+
     response = @player.confirm_continue
 
     if response == false
-      puts "#{@player.name}はスタンドを宣言しました。ディーラーと勝負をします。"
+      puts "#{@player.name}はスタンドを宣言しました。ディーラーとの勝負に進みます"
       @player.is_stand = true
       return
     end

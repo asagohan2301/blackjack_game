@@ -1,3 +1,4 @@
+# Participant クラス：バストやスタンドの状態を管理 / 手持ちのカードを管理
 class Participant
   TARGET_NUMBER = 21
   attr_reader :name, :minimum, :hand
