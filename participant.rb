@@ -1,3 +1,5 @@
+require "debug"
+
 # Participant クラスの役割：
 # Game クラスからの指示で実際に動作を行う。現在の得点を持つ。プレイヤーとディーラーそれぞれに割り振れる役割はこちらに任せる。
 class Participant

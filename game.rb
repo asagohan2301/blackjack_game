@@ -1,3 +1,5 @@
+require "debug"
+
 # Game クラスの役割：
 # ゲームの司会進行 (参加者への指示、勝敗の判定、ゲームオーバーの判定)
 class Game
@@ -6,15 +8,20 @@ class Game
     @dealer = dealer
     @card = card
     @target_number = 21
-    @is_game_over = false
+    @player_is_game_over = false
+    @dealer_is_game_over = false
   end
 
   def blackjack_game
     start
     continue
-    return if @is_game_over
+    return if @player_is_game_over
 
     fight
+    return if @dealer_is_game_over
+
+    # binding.break
+
     show_result
     # 検証用
     puts @card.all_cards
@@ -41,7 +48,7 @@ class Game
       if @player.current_sum > Participant::TARGET_NUMBER
         puts "カードの合計値が#{Participant::TARGET_NUMBER}を超えました。あなたの負けです。"
         puts 'ブラックジャックを終了します。'
-        @is_game_over = true
+        @player_is_game_over = true
         return
       end
       # TARGET_NUMBER を超えていなければ、再度プレイヤーにカードを引くかどうか確認
@@ -52,10 +59,21 @@ class Game
     end
   end
 
+  def dealer_continue
+  end
+
   def fight
     @dealer.show_second_card
     @dealer.show_current_sum
+    # ディーラーにもゲームオーバーを作る
     @dealer.draw_card(@card) while @dealer.current_sum < @dealer.minimum
+    # TARGET_NUMBER を超えたら即プログラム終了
+    if @dealer.current_sum > Participant::TARGET_NUMBER
+      puts "ディーラーのカードの合計値が#{Participant::TARGET_NUMBER}を超えました。あなたの勝ちです。"
+      puts 'ブラックジャックを終了します。'
+      @dealer_is_game_over = true
+      return
+    end
     @player.show_total
     @dealer.show_total
   end
