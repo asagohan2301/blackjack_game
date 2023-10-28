@@ -7,7 +7,7 @@ class Game
     @player = player
     @dealer = dealer
     @card = card
-    @target_number = 21
+    # @target_number = 21
     @player_is_game_over = false
     @dealer_is_game_over = false
   end
@@ -25,6 +25,8 @@ class Game
     show_result
     # 検証用
     puts @card.all_cards
+    p @player.hand
+    p @dealer.hand
   end
 
   private
@@ -46,10 +48,21 @@ class Game
       @player.draw_card(@card)
       # TARGET_NUMBER を超えたら即プログラム終了
       if @player.current_sum > Participant::TARGET_NUMBER
-        puts "カードの合計値が#{Participant::TARGET_NUMBER}を超えました。あなたの負けです。"
-        puts 'ブラックジャックを終了します。'
-        @player_is_game_over = true
-        return
+        # 追加 もし手札にAがあった時を考える
+        # また、引いたカードがAだった時のことも...?いや今引いたカードももう手札に入っているからOKか
+        if @player.hand.include?(11)
+          puts "A持ってるよ！！"
+          # A を 1 とする
+          index = @player.hand.index(11)
+          @player.hand[index] = 1 # 11 を 1 に書き換え
+          @player.current_sum = @player.hand.sum
+          # それでも21を超えている場合ってあるかな？？ないよね？検証まだ
+        else
+          puts "カードの合計値が#{Participant::TARGET_NUMBER}を超えました。あなたの負けです。"
+          puts 'ブラックジャックを終了します。'
+          @player_is_game_over = true
+          return
+        end
       end
       # TARGET_NUMBER を超えていなければ、再度プレイヤーにカードを引くかどうか確認
       @player.show_current_sum
@@ -79,8 +92,8 @@ class Game
   end
 
   def show_result
-    player_score = (@player.current_sum - @target_number).abs
-    dealer_score = (@dealer.current_sum - @target_number).abs
+    player_score = (@player.current_sum - Participant::TARGET_NUMBER).abs
+    dealer_score = (@dealer.current_sum - Participant::TARGET_NUMBER).abs
     if player_score < dealer_score
       puts 'あなたの勝ちです！'
     elsif player_score == dealer_score

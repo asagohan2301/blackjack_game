@@ -3,7 +3,8 @@ require "debug"
 # Participant クラスの役割：
 # Game クラスからの指示で実際に動作を行う。現在の得点を持つ。プレイヤーとディーラーそれぞれに割り振れる役割はこちらに任せる。
 class Participant
-  attr_reader :current_sum, :border, :minimum
+  attr_reader :border, :minimum, :hand
+  attr_accessor :current_sum # ここは使わなくていいように直したいな
 
   # 追加
   TARGET_NUMBER = 21
@@ -12,12 +13,15 @@ class Participant
     # @border = border
     @name = name
     @current_sum = 0
+    # 追加
+    @hand = []
   end
 
   def draw_card(card)
     card.shuffle # カードのインスタンス変数に値が入る
     draw_card_message(card.value, card.suit_ja)
     @current_sum += card.number
+    @hand.push(card.number) # 追加
   end
 
   def draw_card_message(value, suit_ja)
