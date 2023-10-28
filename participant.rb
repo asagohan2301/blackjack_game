@@ -31,9 +31,9 @@ class Participant
 end
 
 class Player < Participant
-  def initialize
-    super('あなた')
-  end
+  # def initialize(name)
+  #   super(name)
+  # end
 
   def draw_card_message(value, suit_ja)
     puts "#{@name}の引いたカードは#{suit_ja}の#{value}です。"
@@ -51,10 +51,10 @@ class Player < Participant
 end
 
 class Dealer < Participant
-  def initialize
-    super('ディーラー')
-    @second_card_suit
-    @second_card_value
+  def initialize(name)
+    super(name)
+    @second_card_suit = ''
+    @second_card_value = ''
     @draw_card_count = 0
     @minimum = 17
   end
