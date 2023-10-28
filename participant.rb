@@ -3,8 +3,6 @@
 class Participant
   attr_reader :name, :minimum, :hand
 
-  TARGET_NUMBER = 21
-
   def initialize(name)
     @name = name
     @hand = []
