@@ -1,46 +1,34 @@
-require "debug"
-
 # Participant クラスの役割：
-# Game クラスからの指示で実際に動作を行う。現在の得点を持つ。プレイヤーとディーラーそれぞれに割り振れる役割はこちらに任せる。
+# Game クラスからの指示で実際に動作を行う。現在の得点を持つ。現在の手持ちのカードの配列を持つ。プレイヤーとディーラーそれぞれに割り振れる役割はこちらに任せる。
 class Participant
-  attr_reader :border, :minimum, :hand
-  attr_accessor :current_sum # ここは使わなくていいように直したいな
+  attr_reader :name, :minimum, :hand
 
-  # 追加
   TARGET_NUMBER = 21
 
   def initialize(name)
-    # @border = border
     @name = name
-    # @current_sum = 0
-    # 追加
     @hand = []
   end
 
   def draw_card(card)
     card.shuffle # カードのインスタンス変数に値が入る
     draw_card_message(card.value, card.suit_ja)
-    @hand.push(card.number) # 追加
-    # @current_sum = @hand.sum # 変更
+    @hand.push(card.number)
   end
 
   def draw_card_message(value, suit_ja)
   end
 
   def show_current_sum
-    puts "#{@name}の現在の得点は#{@hand.sum}です。" # 変更
+    puts "#{@name}の現在の得点は#{@hand.sum}です。"
   end
 
   def show_total
-    puts "#{@name}の最終の得点は#{@hand.sum}です。" # 変更
+    puts "#{@name}の最終の得点は#{@hand.sum}です。"
   end
 end
 
 class Player < Participant
-  # def initialize(name)
-  #   super(name)
-  # end
-
   def draw_card_message(value, suit_ja)
     puts "#{@name}の引いたカードは#{suit_ja}の#{value}です。"
   end

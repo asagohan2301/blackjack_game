@@ -24,6 +24,8 @@ class Card
     @number = set_number
   end
 
+  private
+
   def set_suit
     case rand(4)
     when 0 then @suit = :spade
