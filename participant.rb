@@ -12,7 +12,7 @@ class Participant
   def initialize(name)
     # @border = border
     @name = name
-    @current_sum = 0
+    # @current_sum = 0
     # 追加
     @hand = []
   end
@@ -20,19 +20,19 @@ class Participant
   def draw_card(card)
     card.shuffle # カードのインスタンス変数に値が入る
     draw_card_message(card.value, card.suit_ja)
-    @current_sum += card.number
     @hand.push(card.number) # 追加
+    # @current_sum = @hand.sum # 変更
   end
 
   def draw_card_message(value, suit_ja)
   end
 
   def show_current_sum
-    puts "#{@name}の現在の得点は#{@current_sum}です。"
+    puts "#{@name}の現在の得点は#{@hand.sum}です。" # 変更
   end
 
   def show_total
-    puts "#{@name}の最終の得点は#{@current_sum}です。"
+    puts "#{@name}の最終の得点は#{@hand.sum}です。" # 変更
   end
 end
 

@@ -14,12 +14,13 @@ class Game
 
   def blackjack_game
     start
-    continue
+    player_continue
     return if @player_is_game_over
 
-    fight
+    dealer_continue
     return if @dealer_is_game_over
 
+    fight
     # binding.break
 
     show_result
@@ -39,7 +40,7 @@ class Game
     @dealer.draw_card(@card)
   end
 
-  def continue
+  def player_continue
     @player.show_current_sum
     response = @player.confirm_continue
     return if response == false
@@ -47,15 +48,15 @@ class Game
     loop do
       @player.draw_card(@card)
       # TARGET_NUMBER を超えたら即プログラム終了
-      if @player.current_sum > Participant::TARGET_NUMBER
+      if @player.hand.sum > Participant::TARGET_NUMBER # 変更
         # 追加 もし手札にAがあった時を考える
         # また、引いたカードがAだった時のことも...?いや今引いたカードももう手札に入っているからOKか
         if @player.hand.include?(11)
-          puts "A持ってるよ！！"
+          puts "プレイヤー、A持ってるよ！！"
           # A を 1 とする
           index = @player.hand.index(11)
           @player.hand[index] = 1 # 11 を 1 に書き換え
-          @player.current_sum = @player.hand.sum
+          # @player.current_sum = @player.hand.sum
           # それでも21を超えている場合ってあるかな？？ないよね？検証まだ
         else
           puts "カードの合計値が#{Participant::TARGET_NUMBER}を超えました。あなたの負けです。"
@@ -72,28 +73,41 @@ class Game
     end
   end
 
+  # ディーラーもloop?
   def dealer_continue
-  end
-
-  def fight
     @dealer.show_second_card
     @dealer.show_current_sum
     # ディーラーにもゲームオーバーを作る
-    @dealer.draw_card(@card) while @dealer.current_sum < @dealer.minimum
+    @dealer.draw_card(@card) while @dealer.hand.sum < @dealer.minimum
     # TARGET_NUMBER を超えたら即プログラム終了
-    if @dealer.current_sum > Participant::TARGET_NUMBER
-      puts "ディーラーのカードの合計値が#{Participant::TARGET_NUMBER}を超えました。あなたの勝ちです。"
-      puts 'ブラックジャックを終了します。'
-      @dealer_is_game_over = true
-      return
+    if @dealer.hand.sum > Participant::TARGET_NUMBER
+      # 追加 もし手札にAがあった時を考える
+      # また、引いたカードがAだった時のことも...?いや今引いたカードももう手札に入っているからOKか
+      if @dealer.hand.include?(11)
+        puts "ディーラー、A持ってるよ！！"
+        # A を 1 とする
+        index = @dealer.hand.index(11)
+        @dealer.hand[index] = 1 # 11 を 1 に書き換え
+        # @dealer.current_sum = @dealer.hand.sum
+        # それでも21を超えている場合ってあるかな？？ないよね？検証まだ
+        # で、ここでまだ17未満ならさらにカードを引いていかないと！！！
+      else
+        puts "ディーラーのカードの合計値が#{Participant::TARGET_NUMBER}を超えました。あなたの勝ちです。"
+        puts 'ブラックジャックを終了します。'
+        @dealer_is_game_over = true
+        return
+      end
     end
+  end
+
+  def fight
     @player.show_total
     @dealer.show_total
   end
 
   def show_result
-    player_score = (@player.current_sum - Participant::TARGET_NUMBER).abs
-    dealer_score = (@dealer.current_sum - Participant::TARGET_NUMBER).abs
+    player_score = (@player.hand.sum - Participant::TARGET_NUMBER).abs
+    dealer_score = (@dealer.hand.sum - Participant::TARGET_NUMBER).abs
     if player_score < dealer_score
       puts 'あなたの勝ちです！'
     elsif player_score == dealer_score
