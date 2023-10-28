@@ -1,5 +1,3 @@
-# Participant クラスの役割：
-# Game クラスからの指示で実際に動作を行う。現在の得点を持つ。現在の手持ちのカードの配列を持つ。共通の細かい処理とか。プレイヤーとディーラーそれぞれに割り振れる役割はこちらに任せる。
 class Participant
   TARGET_NUMBER = 21
   attr_reader :name, :minimum, :hand
@@ -27,9 +25,9 @@ class Participant
       # 手札の 11 を 1 に書き換える
       index = @hand.index(11)
       @hand[index] = 1
-      puts "#{@name}のカードの合計値が#{TARGET_NUMBER}を超えました。手札にあるAを1として計算します。計算しなおした合計値は#{@hand.sum}です。"
+      puts "#{@name}の得点が#{TARGET_NUMBER}を超えたので、手札にあるAを1とします。得点は#{@hand.sum}になります。"
     else
-      puts "#{@name}のカードの合計値が#{TARGET_NUMBER}を超えました。#{@name}はバストしました。"
+      puts "#{@name}の得点が#{TARGET_NUMBER}を超えました。#{@name}はバストしました。"
       judge_a_message
       true
     end
@@ -43,7 +41,7 @@ class Participant
   end
 
   def show_total
-    puts "#{@name}の最終の得点は#{@hand.sum}です。"
+    puts "#{@name}の得点は#{@hand.sum}です。"
   end
 end
 
@@ -55,9 +53,14 @@ class HumanPlayer < Participant
   def confirm_continue
     puts 'カードを引きますか？（Y/N）'
     y_or_n = gets.chomp
-    if y_or_n.chomp == 'Y'
+    while %w[Y N].include?(y_or_n) == false
+      puts 'YかNを入力してください。'
+      puts 'カードを引きますか？（Y/N）'
+      y_or_n = gets.chomp
+    end
+    if y_or_n == 'Y'
       true
-    elsif y_or_n.chomp == 'N'
+    elsif y_or_n == 'N'
       false
     end
   end
@@ -87,7 +90,8 @@ class Dealer < Participant
   end
 
   def judge_a_message
-    puts '残ったプレイヤーたちの勝ちです。ブラックジャックを終了します。'
+    puts '残ったプレイヤーたちの勝ちです。'
+    puts 'ブラックジャックを終了します。'
   end
 
   def show_second_card

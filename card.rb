@@ -1,5 +1,3 @@
-# Card クラスの役割：
-# 残ったカードの情報を持つ。カードをランダムに選んで、参加者に渡す。
 class Card
   attr_reader :suit, :value, :number, :suit_ja
 

@@ -1,5 +1,3 @@
-# Game クラスの役割：
-# ゲームの司会進行 (参加者への指示、勝敗の判定、ゲームオーバーの判定)
 class Game
   def initialize(player, computer_player1, computer_player2, dealer, card)
     @player = player
@@ -11,14 +9,12 @@ class Game
 
   def blackjack_game
     start
-    puts '--------'
     player_continue
     return if @player.is_bust
 
     dealer_continue
     return if @dealer.is_bust
 
-    puts '--------'
     fight
     show_result
   end
@@ -35,6 +31,7 @@ class Game
     @computer_player2.draw_card(@card)
     @dealer.draw_card(@card)
     @dealer.draw_card(@card)
+    puts
   end
 
   def player_continue
@@ -43,12 +40,12 @@ class Game
       human_player_continue
       # プレイヤーがバストしたら、プレイヤーの負けでゲーム終了
       return if @player.is_bust
-      # プレイヤーがNならコンピュータはそれ以上引かずに、ディーラーとの勝負へ
+      # プレイヤーがスタンドしたら、コンピュータはそれ以上カードを引かずに、プレイヤー vs ディーラーの勝負へ
       return if @player.is_stand == true
 
       computer_player_continue(@computer_player1) if !@computer_player1.is_bust && !@computer_player1.is_stand
       computer_player_continue(@computer_player2) if !@computer_player2.is_bust && !@computer_player2.is_stand
-      puts '--------'
+      puts
     end
   end
 
@@ -56,15 +53,14 @@ class Game
     response = @player.confirm_continue
 
     if response == false
-      puts "#{@player.name}はスタンドを宣言しました。ディーラーと勝負します。"
-      puts '--------'
+      puts "#{@player.name}はスタンドを宣言しました。ディーラーと勝負をします。"
       @player.is_stand = true
       return
     end
 
     @player.draw_card(@card)
 
-    # TARGET_NUMBER を超えた場合
+    # TARGET_NUMBER を超えていなければここで return
     return unless @player.hand.sum > Participant::TARGET_NUMBER
 
     # 手札に A がある場合の判定
@@ -81,14 +77,13 @@ class Game
 
     computer_player.draw_card(@card)
 
-    # TARGET_NUMBER を超えていなければここで return
     return unless computer_player.hand.sum > Participant::TARGET_NUMBER
 
-    # 手札に A がある場合の判定
     computer_player.is_bust = computer_player.judge_a
   end
 
   def dealer_continue
+    puts
     @dealer.show_second_card
     @dealer.show_current_sum
 
@@ -100,14 +95,15 @@ class Game
 
     return if @dealer.hand.sum >= @dealer.minimum
 
+    puts 'ディーラーは得点が17以上になるまでカードを引きます。'
     while @dealer.hand.sum < @dealer.minimum
       @dealer.draw_card(@card)
-      # TARGET_NUMBER を超えたら即プログラム終了
       @dealer.is_bust = @dealer.judge_a if @dealer.hand.sum > Participant::TARGET_NUMBER
     end
   end
 
   def fight
+    puts
     @player.show_total
     @dealer.show_total
   end
