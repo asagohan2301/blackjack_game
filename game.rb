@@ -17,6 +17,8 @@ class Game
     player_continue
     return if @player_is_game_over
 
+    dealer_announce
+
     dealer_continue
     return if @dealer_is_game_over
 
@@ -73,30 +75,40 @@ class Game
     end
   end
 
-  # ディーラーもloop?
-  def dealer_continue
+  def dealer_announce
     @dealer.show_second_card
     @dealer.show_current_sum
-    # ディーラーにもゲームオーバーを作る
-    @dealer.draw_card(@card) while @dealer.hand.sum < @dealer.minimum
-    # TARGET_NUMBER を超えたら即プログラム終了
-    if @dealer.hand.sum > Participant::TARGET_NUMBER
-      # 追加 もし手札にAがあった時を考える
-      # また、引いたカードがAだった時のことも...?いや今引いたカードももう手札に入っているからOKか
-      if @dealer.hand.include?(11)
-        puts "ディーラー、A持ってるよ！！"
-        # A を 1 とする
-        index = @dealer.hand.index(11)
-        @dealer.hand[index] = 1 # 11 を 1 に書き換え
-        # @dealer.current_sum = @dealer.hand.sum
-        # それでも21を超えている場合ってあるかな？？ないよね？検証まだ
-        # で、ここでまだ17未満ならさらにカードを引いていかないと！！！
-      else
-        puts "ディーラーのカードの合計値が#{Participant::TARGET_NUMBER}を超えました。あなたの勝ちです。"
-        puts 'ブラックジャックを終了します。'
-        @dealer_is_game_over = true
-        return
+  end
+
+  # ディーラーもloop?
+  def dealer_continue
+    # 追加
+    return if @dealer.hand.sum >= @dealer.minimum
+
+    while @dealer.hand.sum < @dealer.minimum
+      # @dealer.draw_card(@card) while @dealer.hand.sum < @dealer.minimum
+      # 17 未満ならカードを引く
+      @dealer.draw_card(@card)
+      # TARGET_NUMBER を超えたら即プログラム終了
+      if @dealer.hand.sum > Participant::TARGET_NUMBER
+        # 追加 もし手札にAがあった時を考える
+        # また、引いたカードがAだった時のことも...?いや今引いたカードももう手札に入っているからOKか
+        if @dealer.hand.include?(11)
+          puts "ディーラー、A持ってるよ！！"
+          # A を 1 とする
+          index = @dealer.hand.index(11)
+          @dealer.hand[index] = 1 # 11 を 1 に書き換え
+          # @dealer.current_sum = @dealer.hand.sum
+          # それでも21を超えている場合ってあるかな？？ないよね？検証まだ
+          # で、ここでまだ17未満ならさらにカードを引いていかないと！！！
+        else
+          puts "ディーラーのカードの合計値が#{Participant::TARGET_NUMBER}を超えました。あなたの勝ちです。"
+          puts 'ブラックジャックを終了します。'
+          @dealer_is_game_over = true
+          # return
+        end
       end
+      # break if @dealer.hand.sum >= 17 # 追加
     end
   end
 
