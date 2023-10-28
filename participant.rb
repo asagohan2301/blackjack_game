@@ -1,6 +1,7 @@
 # Participant クラスの役割：
-# Game クラスからの指示で実際に動作を行う。現在の得点を持つ。現在の手持ちのカードの配列を持つ。プレイヤーとディーラーそれぞれに割り振れる役割はこちらに任せる。
+# Game クラスからの指示で実際に動作を行う。現在の得点を持つ。現在の手持ちのカードの配列を持つ。共通の細かい処理とか。プレイヤーとディーラーそれぞれに割り振れる役割はこちらに任せる。
 class Participant
+  TARGET_NUMBER = 21
   attr_reader :name, :minimum, :hand
 
   def initialize(name)
@@ -15,6 +16,23 @@ class Participant
   end
 
   def draw_card_message(value, suit_ja)
+    puts "#{@name}の引いたカードは#{suit_ja}の#{value}です。"
+  end
+
+  def judge_a
+    if @hand.include?(11)
+      # 手札の 11 を 1 に書き換える
+      index = @hand.index(11)
+      @hand[index] = 1
+      puts "#{@name}のカードの合計値が#{TARGET_NUMBER}を超えました。手札にあるAを1として計算します。計算しなおした合計値は#{@hand.sum}です。"
+    else
+      puts "#{@name}のカードの合計値が#{TARGET_NUMBER}を超えました。#{@name}はバストしました。"
+      judge_a_message
+      true
+    end
+  end
+
+  def judge_a_message
   end
 
   def show_current_sum
@@ -26,9 +44,9 @@ class Participant
   end
 end
 
-class Player < Participant
-  def draw_card_message(value, suit_ja)
-    puts "#{@name}の引いたカードは#{suit_ja}の#{value}です。"
+class HumanPlayer < Participant
+  def judge_a_message
+    puts 'ブラックジャックを終了します。'
   end
 
   def confirm_continue
@@ -63,6 +81,10 @@ class Dealer < Participant
     else
       puts "#{@name}の引いたカードは#{suit_ja}の#{value}です。"
     end
+  end
+
+  def judge_a_message
+    puts '残ったプレイヤーたちの勝ちです。ブラックジャックを終了します。'
   end
 
   def show_second_card

@@ -1,8 +1,6 @@
 # Game クラスの役割：
 # ゲームの司会進行 (参加者への指示、勝敗の判定、ゲームオーバーの判定)
 class Game
-  TARGET_NUMBER = 21
-
   def initialize(player, computer_player1, dealer, card)
     @player = player
     @computer_player1 = computer_player1
@@ -11,8 +9,8 @@ class Game
     @player_is_game_over = false
     @computer_player1_is_game_over = false
     @dealer_is_game_over = false
-    @player_response = ''
-    @computer_player1_response = ''
+    @player_stand = false
+    @computer_player1_stand = false
   end
 
   def blackjack_game
@@ -53,15 +51,13 @@ class Game
   def player_continue
     loop do
       @player.show_current_sum
-      # @computer_player1.show_current_sum unless @computer_player1_is_game_over
       human_player_continue
 
       return if @player_is_game_over # プレイヤーがバストしたら、プレイヤーの負けでゲーム終了
 
-      return if @player_response == 'N' # あなたがNならコンピュータはそれ以上引かずに、ディーラーとの勝負へ
+      return if @player_stand == true # プレイヤーがNならコンピュータはそれ以上引かずに、ディーラーとの勝負へ
 
-      # computer_player_continue unless @computer_player1_is_game_over
-      computer_player_continue if @computer_player1_is_game_over == false && @computer_player1_response == ''
+      computer_player_continue if !@computer_player1_is_game_over && !@computer_player1_stand
       puts '--------'
     end
   end
@@ -70,55 +66,36 @@ class Game
     response = @player.confirm_continue
 
     if response == false
-      puts "#{@player.name}はスタンドを宣言しました。今の手札でディーラーと勝負します。"
+      puts "#{@player.name}はスタンドを宣言しました。ディーラーと勝負します。"
       puts '--------'
-      @player_response = 'N'
+      @player_stand = true
       return
     end
 
     @player.draw_card(@card)
 
     # TARGET_NUMBER を超えた場合
-    return unless @player.hand.sum > TARGET_NUMBER
+    return unless @player.hand.sum > Participant::TARGET_NUMBER
 
-    # 手札に A がある場合
-    if @player.hand.include?(11)
-      puts "#{@player.name}のカードの合計値が#{TARGET_NUMBER}を超えました。手札にあるAを1として計算します。"
-      # 手札の 11 を 1 に書き換える
-      index = @player.hand.index(11)
-      @player.hand[index] = 1
-      @player.show_current_sum
-    else
-      puts "カードの合計値が#{TARGET_NUMBER}を超えました。#{@player.name}の負けです。"
-      puts 'ブラックジャックを終了します。'
-      @player_is_game_over = true
-    end
+    # 手札に A がある場合の判定
+    @player_is_game_over = @player.judge_a
   end
 
   def computer_player_continue
-    # コンピュータは、合計値 18 以上を目指す。つまり合計値が 17 以下ならカードを引き続ける
-    # コンピュータは、手札に A(11の状態) がある場合は、合計値が 27 以下ならカードを引き続ける これはあとで！！
+    # コンピュータは、合計値が 17 を超えたらスタンドを宣言する
     if @computer_player1.hand.sum > 17
       puts "#{@computer_player1.name}はスタンドを宣言しました。"
-      @computer_player1_response = 'N'
+      @computer_player1_stand = true
       return
     end
 
     @computer_player1.draw_card(@card)
 
     # TARGET_NUMBER を超えた場合
-    return unless @computer_player1.hand.sum > TARGET_NUMBER
+    return unless @computer_player1.hand.sum > Participant::TARGET_NUMBER
 
-    if @computer_player1.hand.include?(11)
-      puts "#{@computer_player1.name}のカードの合計値が#{TARGET_NUMBER}を超えました。手札にあるAを1として計算します。"
-      # 手札の 11 を 1 に書き換える
-      index = @computer_player1.hand.index(11)
-      @computer_player1.hand[index] = 1
-      @computer_player1.show_current_sum
-    else
-      puts "#{@computer_player1.name}のカードの合計値が#{TARGET_NUMBER}を超えました。#{@computer_player1.name}はバストです。"
-      @computer_player1_is_game_over = true
-    end
+    # 手札に A がある場合の判定
+    @computer_player1_is_game_over = @computer_player1.judge_a
   end
 
   def dealer_continue
@@ -136,18 +113,7 @@ class Game
     while @dealer.hand.sum < @dealer.minimum
       @dealer.draw_card(@card)
       # TARGET_NUMBER を超えたら即プログラム終了
-      if @dealer.hand.sum > TARGET_NUMBER
-        if @dealer.hand.include?(11)
-          puts "#{@dealer.name}のカードの合計値が#{TARGET_NUMBER}を超えました。手札にあるAを1として計算します。"
-          # 手札の 11 を 1 に書き換える
-          index = @dealer.hand.index(11)
-          @dealer.hand[index] = 1
-        else
-          puts "#{@dealer.name}のカードの合計値が#{TARGET_NUMBER}を超えました。プレイヤーたちの勝ちです。"
-          puts 'ブラックジャックを終了します。'
-          @dealer_is_game_over = true
-        end
-      end
+      @dealer_is_game_over = @dealer.judge_a if @dealer.hand.sum > Participant::TARGET_NUMBER
     end
   end
 
