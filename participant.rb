@@ -1,13 +1,14 @@
-# Participant クラスの役割：
-# Game クラスからの指示で実際に動作を行う。現在の得点を持つ。現在の手持ちのカードの配列を持つ。プレイヤーとディーラーそれぞれに割り振れる役割はこちらに任せる。
+# Participant クラス：バストやスタンドの状態を管理 / 手持ちのカードを管理
 class Participant
-  attr_reader :name, :minimum, :hand
-
   TARGET_NUMBER = 21
+  attr_reader :name, :minimum, :hand
+  attr_accessor :is_bust, :is_stand
 
   def initialize(name)
     @name = name
     @hand = []
+    @is_bust = false
+    @is_stand = false
   end
 
   def draw_card(card)
@@ -17,6 +18,23 @@ class Participant
   end
 
   def draw_card_message(value, suit_ja)
+    puts "#{@name}の引いたカードは#{suit_ja}の#{value}です。"
+  end
+
+  def judge_a
+    if @hand.include?(11)
+      # 手札の 11 を 1 に書き換える
+      index = @hand.index(11)
+      @hand[index] = 1
+      puts "#{@name}の得点が#{TARGET_NUMBER}を超えたので、手札にあるAを1とします。得点は#{@hand.sum}になります。"
+    else
+      puts "#{@name}の得点が#{TARGET_NUMBER}を超えました。#{@name}はバストしました。"
+      judge_a_message
+      true
+    end
+  end
+
+  def judge_a_message
   end
 
   def show_current_sum
@@ -24,24 +42,32 @@ class Participant
   end
 
   def show_total
-    puts "#{@name}の最終の得点は#{@hand.sum}です。"
+    puts "#{@name}の得点は#{@hand.sum}です。"
   end
 end
 
-class Player < Participant
-  def draw_card_message(value, suit_ja)
-    puts "#{@name}の引いたカードは#{suit_ja}の#{value}です。"
+class HumanPlayer < Participant
+  def judge_a_message
+    puts 'ブラックジャックを終了します。'
   end
 
   def confirm_continue
     puts 'カードを引きますか？（Y/N）'
     y_or_n = gets.chomp
-    if y_or_n.chomp == 'Y'
+    while %w[Y N].include?(y_or_n) == false
+      puts 'YかNを入力してください。'
+      puts 'カードを引きますか？（Y/N）'
+      y_or_n = gets.chomp
+    end
+    if y_or_n == 'Y'
       true
-    elsif y_or_n.chomp == 'N'
+    elsif y_or_n == 'N'
       false
     end
   end
+end
+
+class ComputerPlayer < Participant
 end
 
 class Dealer < Participant
@@ -62,6 +88,11 @@ class Dealer < Participant
     else
       puts "#{@name}の引いたカードは#{suit_ja}の#{value}です。"
     end
+  end
+
+  def judge_a_message
+    puts '残ったプレイヤーたちの勝ちです。'
+    puts 'ブラックジャックを終了します。'
   end
 
   def show_second_card

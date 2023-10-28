@@ -1,10 +1,9 @@
-# Card クラスの役割：
-# 残ったカードの情報を持つ。カードをランダムに選んで、参加者に渡す。
+# Card クラス：残りのカードを管理 / 参加者にカードを渡す
 class Card
-  attr_reader :all_cards, :suit, :value, :number, :suit_ja
+  attr_reader :suit, :value, :number, :suit_ja
 
   def initialize
-    @all_cards = {
+    @deck = {
       spade: ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K'],
       heart: ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K'],
       diamond: ['A', 2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K'],
@@ -45,7 +44,7 @@ class Card
   end
 
   def set_value
-    @value = @all_cards[@suit].delete_at(rand(@all_cards[@suit].length))
+    @value = @deck[@suit].delete_at(rand(@deck[@suit].length))
   end
 
   def set_number
