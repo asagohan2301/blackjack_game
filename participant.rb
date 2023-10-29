@@ -2,13 +2,26 @@
 class Participant
   TARGET_NUMBER = 21
   attr_reader :name, :minimum, :hand
-  attr_accessor :is_bust, :is_stand
+  attr_accessor :is_bust, :is_stand, :chip
 
   def initialize(name)
     @name = name
     @hand = []
     @is_bust = false
     @is_stand = false
+    # 追加
+    @chip = 0
+    @balance = 10
+    @is_double_down = false
+  end
+
+  def show_balance
+    puts "#{@name}の残りのコインは#{@balance}枚です。"
+  end
+
+  def set_balance(i_or_d, chip)
+    @balance += chip if i_or_d == 'i'
+    @balance -= chip if i_or_d == 'd'
   end
 
   def draw_card(card)

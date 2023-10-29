@@ -10,6 +10,8 @@ class Game
 
   def blackjack_game
     start
+    bet
+    draw
     player_continue
     return if @player.is_bust
 
@@ -17,13 +19,28 @@ class Game
     return if @dealer.is_bust
 
     fight
-    show_result
+    result = show_result
+    settle_bet(result)
+    over
   end
 
   private
 
   def start
     puts 'ブラックジャックを開始します。'
+  end
+
+  def bet
+    @player.show_balance
+    puts 'コインを何枚賭けますか？数字を入力してください。'
+    @player.chip = gets.to_i
+    puts "コインを#{@player.chip}枚賭けます。"
+    @player.set_balance('d', @player.chip)
+    @player.show_balance
+    puts
+  end
+
+  def draw
     @player.draw_card(@card)
     @player.draw_card(@card)
     @computer_player1.draw_card(@card)
@@ -61,7 +78,7 @@ class Game
     response = @player.confirm_continue
 
     if response == false
-      puts "#{@player.name}はスタンドを宣言しました。ディーラーとの勝負に進みます"
+      puts "#{@player.name}はスタンドを宣言しました。ディーラーとの勝負に進みます。"
       @player.is_stand = true
       return
     end
@@ -119,11 +136,32 @@ class Game
   def show_result
     if @player.hand.sum > @dealer.hand.sum
       puts "#{@player.name}の勝ちです！"
+      'win'
     elsif @player.hand.sum == @dealer.hand.sum
       puts '引き分けです。'
+      'draw'
     else
       puts "#{@player.name}の負けです。"
+      'lose'
     end
+    puts
+  end
+
+  def settle_bet(result)
+    case result
+    when 'win'
+      puts "賭けたコインの2倍を得ます。#{@player.name}は#{@player.chip * 2}枚コインを得ました。"
+      @player.set_balance('i', @player.chip * 2)
+    when 'draw'
+      puts "賭けたコインがそのまま戻ってきます。#{@player.name}は#{@player.chip}枚コインを得ました。"
+      @player.set_balance('i', @player.chip)
+    when 'lose'
+      puts '賭けたコインは没収されます。'
+    end
+    @player.show_balance
+  end
+
+  def over
     puts 'ブラックジャックを終了します。'
   end
 end
