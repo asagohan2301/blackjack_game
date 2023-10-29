@@ -40,13 +40,14 @@ class Participant
 end
 
 class Player < Participant
-  attr_reader :is_stand
+  attr_reader :is_stand, :is_double_down
 
   def initialize(name)
     super(name)
     @is_stand = false
     @chip = 0
     @balance = 10
+    @is_double_down = 'undecided'
   end
 
   def show_balance
@@ -54,9 +55,34 @@ class Player < Participant
   end
 
   def confirm_chip
-    puts 'チップを何枚賭けますか？数字を入力してください。'
+    puts 'チップを何枚賭けますか？'
     @chip = gets.chomp.to_i
+    while @chip > @balance || @chip <= 0
+      puts '残りのチップ以下の正の整数を入力してください。'
+      puts 'チップを何枚賭けますか？'
+      @chip = gets.chomp.to_i
+    end
     @balance -= @chip
+  end
+
+  def confirm_double_down
+    puts 'ダブルダウンしますか？賭けるチップを2倍(足りない場合は全額)にし、カードはあと1枚だけ引きます。（Y/N）'
+    @is_double_down = gets.chomp
+    while %w[Y N].include?(@is_double_down) == false
+      puts 'YかNを入力してください。'
+      puts 'ダブルダウンしますか？'
+      @is_double_down = gets.chomp
+    end
+    return if @is_double_down == 'N'
+
+    if @chip * 2 > @balance + @chip
+      @chip = @balance + @chip
+      @balance = 0
+    else
+      @balance -= @chip
+      @chip += @chip
+    end
+    puts "賭けるチップを#{@chip}枚にします。"
   end
 
   def confirm_continue

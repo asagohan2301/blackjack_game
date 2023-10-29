@@ -49,7 +49,7 @@ class Game
   def player_continue
     loop do
       puts
-      @player.show_current_sum
+      @player.show_current_sum unless @player.is_stand
       human_player_continue
       return if @player.is_bust
 
@@ -62,6 +62,11 @@ class Game
   end
 
   def human_player_continue
+    human_player_confirm
+    human_player_draw
+  end
+
+  def human_player_confirm
     return if @player.is_bust || @player.is_stand
 
     # 得点が TARGET_NUMBER なら確認せずに進む
@@ -71,13 +76,20 @@ class Game
       return
     end
 
+    # ダブルダウンの確認は1回だけ
+    @player.confirm_double_down if @player.is_double_down == 'undecided'
+    return if @player.is_double_down == 'Y'
+
     response = @player.confirm_continue
-    if response == false
-      @player.stand
-      return
-    end
+    @player.stand if response == false
+  end
+
+  def human_player_draw
+    return if @player.is_bust || @player.is_stand
 
     @player.draw_card(@card)
+    @player.stand if @player.is_double_down == 'Y'
+
     # TARGET_NUMBER を超えなければここで return
     return unless @player.hand.sum > Participant::TARGET_NUMBER
 
